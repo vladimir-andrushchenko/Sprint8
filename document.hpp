@@ -18,13 +18,6 @@ enum class DocumentStatus {
     REMOVED,
 };
 
-//enum class DocumentStatus {
-//    kActual,
-//    kIrrelevant,
-//    kBanned,
-//    kRemoved,
-//};
-
 std::ostream& operator<<(std::ostream& out, const DocumentStatus status);
 
 void PrintDocument(const Document& document);

@@ -1,6 +1,6 @@
 #include <sstream>
 
-#include "string_processing.h"
+#include "string_processing.hpp"
 
 namespace string_processing {
 

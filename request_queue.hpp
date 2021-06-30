@@ -1,9 +1,11 @@
 #pragma once
 
 #include <deque>
+#include <vector>
+#include <string>
 
-#include "document.h"
-#include "search_server.h"
+#include "document.hpp"
+#include "search_server.hpp"
 
 class RequestQueue {
 public:
@@ -14,7 +16,7 @@ public:
     std::vector<Document> AddFindRequest(const std::string& raw_query, DocumentPredicate document_predicate);
     
     std::vector<Document> AddFindRequest(const std::string& raw_query,
-                                         DocumentStatus status = DocumentStatus::ACTUAL /*kActual*/);
+                                         DocumentStatus status = DocumentStatus::ACTUAL);
     
     int GetNoResultRequests() const;
     

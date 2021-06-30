@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
 
-#include "document.h"
+#include "document.hpp"
 
 using namespace std::literals;
 
@@ -35,19 +35,6 @@ std::ostream& operator<<(std::ostream& out, const DocumentStatus status) {
         case DocumentStatus::REMOVED:
             out << "kRemoved"s;
             break;
-            
-//        case DocumentStatus::kActual:
-//            out << "kActual"s;
-//            break;
-//        case DocumentStatus::kBanned:
-//            out << "kBanned"s;
-//            break;
-//        case DocumentStatus::kIrrelevant:
-//            out << "kIrrelevant"s;
-//            break;
-//        case DocumentStatus::kRemoved:
-//            out << "kRemoved"s;
-//            break;
     }
     
     return out;
