@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <numeric>
+#include <execution>
 
 #include "search_server.h"
 
@@ -22,5 +23,5 @@ std::vector<Document> ProcessQueriesJoined(const SearchServer& search_server,
         return first;
     };
 
-    return std::reduce(documents.begin(), documents.end(), std::vector<Document>{}, func);
+    return std::reduce(std::execution::par, documents.begin(), documents.end(), std::vector<Document>{}, func);
 }
