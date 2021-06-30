@@ -4,8 +4,8 @@
 #include <vector>
 #include <string>
 
-#include "document.hpp"
-#include "search_server.hpp"
+#include "document.h"
+#include "search_server.h"
 
 class RequestQueue {
 public:

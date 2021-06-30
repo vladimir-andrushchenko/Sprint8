@@ -1,12 +1,12 @@
 #include <string>
 #include <iostream>
 
-#include "search_server.hpp"
-#include "request_queue.hpp"
-#include "paginator.hpp"
-#include "remove_duplicates.hpp"
+#include "search_server.h"
+#include "request_queue.h"
+#include "paginator.h"
+#include "remove_duplicates.h"
 
-#include "test_search_server.hpp"
+#include "test_search_server.h"
 
 using namespace std::literals;
 

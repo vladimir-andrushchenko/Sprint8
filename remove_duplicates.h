@@ -1,6 +1,6 @@
 #pragma once
 
-#include "search_server.hpp"
+#include "search_server.h"
 
 namespace remove_duplicates {
 

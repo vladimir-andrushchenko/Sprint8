@@ -2,8 +2,8 @@
 #include <cmath>
 #include <algorithm>
 
-#include "search_server.hpp"
-#include "string_processing.hpp"
+#include "search_server.h"
+#include "string_processing.h"
 
 #include "log_duration.h"
 

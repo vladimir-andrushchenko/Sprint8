@@ -2,11 +2,11 @@
 #include <cmath>
 #include <cassert>
 
-#include "test_search_server.hpp"
+#include "test_search_server.h"
 #include "testing_framework.h"
-#include "search_server.hpp"
-#include "string_processing.hpp"
-#include "remove_duplicates.hpp"
+#include "search_server.h"
+#include "string_processing.h"
+#include "remove_duplicates.h"
 
 void TestIteratingOverSearchServer() {
     SearchServer search_server;

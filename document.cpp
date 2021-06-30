@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
 
-#include "document.hpp"
+#include "document.h"
 
 using namespace std::literals;
 

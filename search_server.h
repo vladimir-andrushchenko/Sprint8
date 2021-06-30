@@ -7,7 +7,7 @@
 #include <map>
 #include <algorithm>
 
-#include "document.hpp"
+#include "document.h"
 
 class SearchServer {
 public:

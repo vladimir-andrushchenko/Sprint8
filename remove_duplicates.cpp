@@ -1,4 +1,4 @@
-#include "remove_duplicates.hpp"
+#include "remove_duplicates.h"
 
 #include <set>
 #include <string>
