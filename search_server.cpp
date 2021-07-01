@@ -1,6 +1,7 @@
 #include <cassert>
 #include <cmath>
 #include <algorithm>
+#include <execution>
 
 #include "search_server.h"
 #include "string_processing.h"
@@ -28,6 +29,10 @@ const std::map<std::string, double>& SearchServer::GetWordFrequencies(int docume
 }
 
 void SearchServer::RemoveDocument(int document_id) {
+    if (document_id_to_document_data_.count(document_id) == 0) {
+        return;
+    }
+
     for (const auto& [word, term_frequency] : GetWordFrequencies(document_id)) {
         word_to_document_id_to_term_frequency_.at(word).erase(document_id);
         
@@ -39,6 +44,14 @@ void SearchServer::RemoveDocument(int document_id) {
     document_id_to_document_data_.erase(document_id);
     
     document_ids_.erase(document_id);
+}
+
+void SearchServer::RemoveDocument(std::execution::sequenced_policy p, const int document_id) {
+    RemoveDocument(document_id);
+}
+
+void SearchServer::RemoveDocument(std::execution::parallel_policy p, int document_id) {
+    RemoveDocument(document_id);
 }
 
 SearchServer::SearchServer(const std::string& stop_words) {
