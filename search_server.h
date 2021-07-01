@@ -10,6 +10,10 @@
 
 #include "document.h"
 
+enum class Policy {
+    parallel, sequential
+};
+
 class SearchServer {
 public:
     SearchServer() = default;
@@ -41,7 +45,7 @@ public:
     
     const std::map<std::string, double>& GetWordFrequencies(int document_id) const;
     
-    void RemoveDocument(int document_id);
+    void RemoveDocument(int document_id, Policy policy = Policy::sequential);
 
     void RemoveDocument(std::execution::sequenced_policy p, const int document_id);
 
@@ -156,6 +160,3 @@ void MatchDocuments(const SearchServer& search_server, const std::string& query)
 SearchServer CreateSearchServer(const std::string& stop_words);
 
 } // namespace search_server_helpers
-
-
-

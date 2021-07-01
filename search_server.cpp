@@ -29,7 +29,7 @@ const std::map<std::string, double>& SearchServer::GetWordFrequencies(int docume
     return empty_map;
 }
 
-void SearchServer::RemoveDocument(int document_id) {
+void SearchServer::RemoveDocument(int document_id, Policy policy) {
     if (document_id_to_document_data_.count(document_id) == 0) {
         return;
     }
@@ -47,9 +47,15 @@ void SearchServer::RemoveDocument(int document_id) {
     }
 
     // change inner maps
-    std::for_each(id_to_frequency.begin(), id_to_frequency.end(), [document_id](std::map<int, double>& element){
-        element.erase(document_id);
-    });
+    if (policy == Policy::parallel) {
+        std::for_each(std::execution::par, id_to_frequency.begin(), id_to_frequency.end(), [document_id](std::map<int, double>& element){
+            element.erase(document_id);
+        });
+    } else {
+        std::for_each(std::execution::seq, id_to_frequency.begin(), id_to_frequency.end(), [document_id](std::map<int, double>& element){
+            element.erase(document_id);
+        }); 
+    }
 
     // and put them back
     auto it = id_to_frequency.begin();
@@ -68,11 +74,11 @@ void SearchServer::RemoveDocument(int document_id) {
 }
 
 void SearchServer::RemoveDocument(std::execution::sequenced_policy p, const int document_id) {
-    RemoveDocument(document_id);
+    RemoveDocument(document_id, Policy::sequential);
 }
 
 void SearchServer::RemoveDocument(std::execution::parallel_policy p, int document_id) {
-    RemoveDocument(document_id);
+    RemoveDocument(document_id, Policy::parallel);
 }
 
 SearchServer::SearchServer(const std::string& stop_words) {
