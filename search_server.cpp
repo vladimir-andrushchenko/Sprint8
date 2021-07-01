@@ -51,6 +51,7 @@ void SearchServer::RemoveDocument(int document_id, Policy policy) {
         std::for_each(std::execution::par, id_to_frequency.begin(), id_to_frequency.end(), [document_id](std::map<int, double>& element){
             element.erase(document_id);
         });
+
     } else {
         std::for_each(std::execution::seq, id_to_frequency.begin(), id_to_frequency.end(), [document_id](std::map<int, double>& element){
             element.erase(document_id);
@@ -73,7 +74,7 @@ void SearchServer::RemoveDocument(int document_id, Policy policy) {
     document_ids_.erase(document_id);
 }
 
-void SearchServer::RemoveDocument(std::execution::sequenced_policy p, const int document_id) {
+void SearchServer::RemoveDocument(std::execution::sequenced_policy p, int document_id) {
     RemoveDocument(document_id, Policy::sequential);
 }
 
