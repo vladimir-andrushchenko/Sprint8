@@ -2,6 +2,7 @@
 #include <cmath>
 #include <algorithm>
 #include <execution>
+#include <utility>
 
 #include "search_server.h"
 #include "string_processing.h"
@@ -33,14 +34,29 @@ void SearchServer::RemoveDocument(int document_id) {
         return;
     }
 
-    for (const auto& [word, term_frequency] : GetWordFrequencies(document_id)) {
-        word_to_document_id_to_term_frequency_.at(word).erase(document_id);
+    const auto words_and_frequencies = GetWordFrequencies(document_id);
+
+    std::vector<std::map<int, double>> id_to_frequency;
+    id_to_frequency.reserve(words_and_frequencies.size());
+
+    for (const auto& [word, term_frequency] : words_and_frequencies) {
+        id_to_frequency.push_back(word_to_document_id_to_term_frequency_.at(word));
+    }
+
+    std::for_each(std::execution::par ,id_to_frequency.begin(), id_to_frequency.end(), [document_id](std::map<int, double>& element){
+        element.erase(document_id);
+    });
+
+    auto it = id_to_frequency.begin();
+    for (const auto& [word, term_frequency] : words_and_frequencies) {
+        word_to_document_id_to_term_frequency_.at(word) = *(it++);
         
         if (word_to_document_id_to_term_frequency_.at(word).empty()) {
             word_to_document_id_to_term_frequency_.erase(word);
         }
     }
-    
+
+// not parallel
     document_id_to_document_data_.erase(document_id);
     
     document_ids_.erase(document_id);
