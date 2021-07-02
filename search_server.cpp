@@ -171,11 +171,6 @@ std::tuple<std::vector<std::string>, DocumentStatus> SearchServer::MatchDocument
     return std::tuple<std::vector<std::string>, DocumentStatus>{matched_words, document_id_to_document_data_.at(document_id).status};
 } // MatchDocument
 
-//int SearchServer::GetDocumentId(int index) const {
-//    return document_ids_.at(index);
-//}
-
-
 std::vector<std::string> SearchServer::SplitIntoWordsNoStop(const std::string& text) const {
     std::vector<std::string> words;
     for (const std::string& word : string_processing::SplitIntoWords(text)) {
@@ -230,11 +225,12 @@ SearchServer::QueryWord SearchServer::ParseQueryWord(std::string text) const {
 } // ParseQueryWord
 
 SearchServer::Query SearchServer::ParseQuery(const std::string& text) const {
-    Query query;
-    
-    for (const std::string& word : string_processing::SplitIntoWords(text)) {
-        const QueryWord query_word = ParseQueryWord(word);
-        
+    auto words = string_processing::SplitIntoWords(text);
+
+    const auto transform_word_in_query = [this](const std::string& word){
+        auto query_word = this->ParseQueryWord(word);
+
+        Query query;
         if (!query_word.is_stop) {
             if (query_word.is_minus) {
                 query.minus_words.insert(query_word.data);
@@ -242,9 +238,15 @@ SearchServer::Query SearchServer::ParseQuery(const std::string& text) const {
                 query.plus_words.insert(query_word.data);
             }
         }
-    }
-    
-    return query;
+
+        return query;
+    };
+
+    const auto combine_queries = [](Query first, Query second){
+        return first += std::move(second);
+    };
+
+    return std::transform_reduce(std::execution::par, std::make_move_iterator(words.begin()), std::make_move_iterator(words.end()), Query{}, combine_queries, transform_word_in_query);
 } // ParseQuery
 
 // Existence required

@@ -61,6 +61,18 @@ private:
     struct Query {
         std::set<std::string> plus_words;
         std::set<std::string> minus_words;
+
+        Query& operator+=(Query&& other) {
+            for (const auto& other_plus_word : other.plus_words) {
+                plus_words.insert(std::move(other_plus_word));
+            }
+
+            for (const auto& other_minus_word : other.minus_words) {
+                minus_words.insert(std::move(other_minus_word));
+            }
+
+            return *this;
+        }
     };
     
     struct QueryWord {
