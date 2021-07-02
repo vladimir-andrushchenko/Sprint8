@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <execution>
 
 using namespace std;
 
@@ -31,13 +32,13 @@ int main() {
     }
 
     {
-        const auto [words, status] = search_server.MatchDocument(query, 2);
+        const auto [words, status] = search_server.MatchDocument(execution::seq, query, 2);
         cout << words.size() << " words for document 2"s << endl;
         // 2 words for document 2
     }
 
     {
-        const auto [words, status] = search_server.MatchDocument(query, 3);
+        const auto [words, status] = search_server.MatchDocument(execution::par, query, 3);
         cout << words.size() << " words for document 3"s << endl;
         // 0 words for document 3
     }

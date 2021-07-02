@@ -143,8 +143,11 @@ std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_quer
     return FindTopDocuments(raw_query, predicate);
 } // FindTopDocuments with status as a second argument
 
-std::tuple<std::vector<std::string>, DocumentStatus> SearchServer::MatchDocument(const std::string& raw_query, int document_id) const {
-    const Query query = ParseQuery(raw_query);
+std::tuple<std::vector<std::string>, DocumentStatus> SearchServer::MatchDocument(
+                                                                                 const std::string& raw_query, 
+                                                                                 int document_id,
+                                                                                 Policy policy) const {
+    const Query query = ParseQuery(raw_query, policy);
     
     std::vector<std::string> matched_words;
     for (const std::string& word : query.plus_words) {
@@ -224,7 +227,7 @@ SearchServer::QueryWord SearchServer::ParseQueryWord(std::string text) const {
     return {text, is_minus, IsStopWord(text)};
 } // ParseQueryWord
 
-SearchServer::Query SearchServer::ParseQuery(const std::string& text) const {
+SearchServer::Query SearchServer::ParseQuery(const std::string& text, Policy policy) const {
     auto words = string_processing::SplitIntoWords(text);
 
     const auto transform_word_in_query = [this](const std::string& word){
@@ -246,7 +249,7 @@ SearchServer::Query SearchServer::ParseQuery(const std::string& text) const {
         return first += std::move(second);
     };
 
-    return std::transform_reduce(std::execution::par, std::make_move_iterator(words.begin()), std::make_move_iterator(words.end()), Query{}, combine_queries, transform_word_in_query);
+    return std::transform_reduce(policy == Policy::parallel ? std::execution::par, std::execution::seq, std::make_move_iterator(words.begin()), std::make_move_iterator(words.end()), Query{}, combine_queries, transform_word_in_query);
 } // ParseQuery
 
 // Existence required

@@ -37,7 +37,11 @@ public:
     std::vector<Document> FindTopDocuments(const std::string& raw_query,
                                            const DocumentStatus& desired_status = DocumentStatus::ACTUAL) const;
     
-    std::tuple<std::vector<std::string>, DocumentStatus> MatchDocument(const std::string& raw_query, int document_id) const;
+    std::tuple<std::vector<std::string>, DocumentStatus> MatchDocument(const std::string& raw_query, int document_id, Policy policy = Policy::sequential) const;
+
+    std::tuple<std::vector<std::string>, DocumentStatus> MatchDocument(std::execution::parallel_policy, const std::string& raw_query, int document_id) const;
+
+    std::tuple<std::vector<std::string>, DocumentStatus> MatchDocument(std::execution::sequenced_policy, const std::string& raw_query, int document_id) const;
     
     std::set<int>::const_iterator begin() const;
     
@@ -94,7 +98,7 @@ private:
     
     QueryWord ParseQueryWord(std::string text) const;
     
-    Query ParseQuery(const std::string& text) const;
+    Query ParseQuery(const std::string& text, Policy policy) const;
     
     // Existence required
     double ComputeWordInverseDocumentFrequency(const std::string& word) const;
