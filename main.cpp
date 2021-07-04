@@ -25,7 +25,7 @@ int main() {
         search_server.AddDocument(++id, text, DocumentStatus::ACTUAL, {1, 2});
     }
 
-    const string query = "curly  and funny -not"s;
+    const string query = ""s;
 
     {
         const auto [words, status] = search_server.MatchDocument(query, 1);

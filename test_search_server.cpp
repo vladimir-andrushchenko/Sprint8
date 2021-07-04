@@ -429,7 +429,7 @@ void TestDoubleMinusWord() {
     std::cout << "hey" << std::endl << std::endl;
     try {
         search_server.FindTopDocuments("--пушистый"s);
-    } catch (...) {
+    } catch (std::invalid_argument& e) {
         return;
     }
     

@@ -159,7 +159,10 @@ std::tuple<std::vector<std::string>, DocumentStatus> SearchServer::MatchDocument
                                                                                  const std::string& raw_query, 
                                                                                  int document_id,
                                                                                  Policy policy) const {
-    const Query query = ParseQuery(raw_query, policy);
+     Query query;
+    if (!ParseQuery(raw_query, query)) {
+        throw std::invalid_argument("invalid request");
+    }
     
     std::vector<std::string> matched_words;
     for (const std::string& word : query.plus_words) {
@@ -211,39 +214,51 @@ bool SearchServer::IsStopWord(const std::string& word) const {
     return stop_words_.count(word) > 0;
 } // IsStopWord
 
-SearchServer::QueryWord SearchServer::ParseQueryWord(std::string text) const {
-    if (text.empty()) {
-        throw std::invalid_argument("caught empty word, check for double spaces"s);
-    }
-    
-    bool is_minus = false;
-    
-    if (text[0] == '-') {
-        text = text.substr(1);
-        
-        if (text.empty()) {
-            throw std::invalid_argument("empty minus words are not allowed"s);
-        }
-        
-        if (text[0] == '-') {
-            throw std::invalid_argument("double minus words are not allowed"s);
-        }
-        
-        is_minus = true;
-    }
-    
-    if (!IsValidWord(text)) {
-        throw std::invalid_argument("special symbols in words are not allowed"s);
-    }
-    
-    return {text, is_minus, IsStopWord(text)};
-} // ParseQueryWord
+[[nodiscard]] bool SearchServer::ParseQueryWord(std::string text, QueryWord& result) const {
+    result = {};
 
+    if (text.empty()) {
+        return false;
+    }
+    bool is_minus = false;
+    if (text[0] == '-') {
+        is_minus = true;
+        text = text.substr(1);
+    }
+    if (text.empty() || text[0] == '-' || !IsValidWord(text)) {
+        return false;
+    }
+
+    result = QueryWord{ text, is_minus, IsStopWord(text) };
+    return true;
+}
+
+[[nodiscard]] bool SearchServer::ParseQuery(const std::string& text, Query& result) const {
+
+    result = {};
+    for (const std::string& word : string_processing::SplitIntoWords(text)) {
+        QueryWord query_word;
+        if (!ParseQueryWord(word, query_word)) {
+            return false;
+        }
+        if (!query_word.is_stop) {
+            if (query_word.is_minus) {
+                result.minus_words.insert(query_word.data);
+            }
+            else {
+                result.plus_words.insert(query_word.data);
+            }
+        }
+    }
+    return true;
+}
+
+/*
 SearchServer::Query SearchServer::ParseQuery(const std::string& text, Policy policy) const {
     auto words = string_processing::SplitIntoWords(text);
 
-    const auto transform_word_in_query = [this](const std::string& word){
-        auto query_word = this->ParseQueryWord(word);
+    const auto transform_word_in_query = [&](const std::string& word){
+        auto query_word = ParseQueryWord(word);
 
         Query query;
         if (!query_word.is_stop) {
@@ -262,11 +277,12 @@ SearchServer::Query SearchServer::ParseQuery(const std::string& text, Policy pol
     };
 
     if (policy == Policy::parallel) {
-        return std::transform_reduce(std::execution::par, std::make_move_iterator(words.begin()), std::make_move_iterator(words.end()), Query{}, combine_queries, transform_word_in_query);
+        return std::transform_reduce(std::execution::par, words.begin(), words.end(), Query{}, combine_queries, transform_word_in_query);
     } else {
-        return std::transform_reduce(std::execution::seq, std::make_move_iterator(words.begin()), std::make_move_iterator(words.end()), Query{}, combine_queries, transform_word_in_query);
+        return std::transform_reduce(std::execution::seq, words.begin(), words.end(), Query{}, combine_queries, transform_word_in_query);
     }
 } // ParseQuery
+*/
 
 // Existence required
 double SearchServer::ComputeWordInverseDocumentFrequency(const std::string& word) const {

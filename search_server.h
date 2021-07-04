@@ -96,9 +96,9 @@ private:
     
     bool IsStopWord(const std::string& word) const;
     
-    QueryWord ParseQueryWord(std::string text) const;
+    [[nodiscard]] bool ParseQueryWord(std::string text, QueryWord& result) const;
     
-    Query ParseQuery(const std::string& text, Policy policy) const;
+    [[nodiscard]] bool ParseQuery(const std::string& text, Query& result) const;
     
     // Existence required
     double ComputeWordInverseDocumentFrequency(const std::string& word) const;
@@ -132,7 +132,10 @@ SearchServer::SearchServer(const StringCollection& stop_words) {
 
 template<typename Predicate>
 std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_query, Predicate predicate) const {
-    const Query query = ParseQuery(raw_query, Policy::sequential);
+     Query query;
+    if (!ParseQuery(raw_query, query)) {
+        throw std::invalid_argument("invalid request");
+    };
     
     std::vector<Document> matched_documents = FindAllDocuments(query);
     
