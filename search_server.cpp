@@ -92,10 +92,6 @@ SearchServer::SearchServer(const std::string& stop_words) {
 
 void SearchServer::SetStopWords(const std::string& text) {
     for (const std::string& word : string_processing::SplitIntoWords(text)) {
-        if (!IsValidWord(word)) {
-            throw std::invalid_argument("Bad stop word");
-        }
-        
         stop_words_.insert(word);
     }
 } // SetStopWords
