@@ -132,7 +132,7 @@ SearchServer::SearchServer(const StringCollection& stop_words) {
 
 template<typename Predicate>
 std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_query, Predicate predicate) const {
-    const Query query = ParseQuery(raw_query);
+    const Query query = ParseQuery(raw_query, Policy::sequential);
     
     std::vector<Document> matched_documents = FindAllDocuments(query);
     

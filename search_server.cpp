@@ -92,6 +92,10 @@ SearchServer::SearchServer(const std::string& stop_words) {
 
 void SearchServer::SetStopWords(const std::string& text) {
     for (const std::string& word : string_processing::SplitIntoWords(text)) {
+        if (!IsValidWord(word)) {
+            throw std::invalid_argument("Bad stop word");
+        }
+        
         stop_words_.insert(word);
     }
 } // SetStopWords
@@ -142,6 +146,14 @@ std::vector<Document> SearchServer::FindTopDocuments(const std::string& raw_quer
     
     return FindTopDocuments(raw_query, predicate);
 } // FindTopDocuments with status as a second argument
+
+std::tuple<std::vector<std::string>, DocumentStatus> SearchServer::MatchDocument(std::execution::parallel_policy, const std::string& raw_query, int document_id) const {
+    return MatchDocument(raw_query, document_id, Policy::parallel);
+}
+
+std::tuple<std::vector<std::string>, DocumentStatus> SearchServer::MatchDocument(std::execution::sequenced_policy, const std::string& raw_query, int document_id) const {
+    return MatchDocument(raw_query, document_id, Policy::sequential);
+}
 
 std::tuple<std::vector<std::string>, DocumentStatus> SearchServer::MatchDocument(
                                                                                  const std::string& raw_query, 
@@ -249,7 +261,11 @@ SearchServer::Query SearchServer::ParseQuery(const std::string& text, Policy pol
         return first += std::move(second);
     };
 
-    return std::transform_reduce(policy == Policy::parallel ? std::execution::par, std::execution::seq, std::make_move_iterator(words.begin()), std::make_move_iterator(words.end()), Query{}, combine_queries, transform_word_in_query);
+    if (policy == Policy::parallel) {
+        return std::transform_reduce(std::execution::par, std::make_move_iterator(words.begin()), std::make_move_iterator(words.end()), Query{}, combine_queries, transform_word_in_query);
+    } else {
+        return std::transform_reduce(std::execution::seq, std::make_move_iterator(words.begin()), std::make_move_iterator(words.end()), Query{}, combine_queries, transform_word_in_query);
+    }
 } // ParseQuery
 
 // Existence required

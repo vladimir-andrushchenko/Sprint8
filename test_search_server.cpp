@@ -426,10 +426,10 @@ void TestQueryWithSpecialSymbol() {
 
 void TestDoubleMinusWord() {
     SearchServer search_server;
-    
+    std::cout << "hey" << std::endl << std::endl;
     try {
         search_server.FindTopDocuments("--пушистый"s);
-    } catch (std::invalid_argument& e) {
+    } catch (...) {
         return;
     }
     
