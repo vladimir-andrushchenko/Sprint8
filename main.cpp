@@ -1,5 +1,6 @@
 #include "search_server.h"
 #include "process_queries.h"
+#include "test_search_server.h"
 
 #include <iostream>
 #include <string>
@@ -8,6 +9,8 @@
 using namespace std;
 
 int main() {
+    TestSearchServer();
+
     SearchServer search_server("and with"s);
 
     int id = 0;
