@@ -90,13 +90,21 @@ SearchServer::SearchServer(const std::string& stop_words) {
     SetStopWords(stop_words);
 }
 
-void SearchServer::SetStopWords(const std::string& text) {
-    for (const std::string& word : string_processing::SplitIntoWords(text)) {
+SearchServer::SearchServer(const std::string_view stop_words) {
+    if (!IsValidWord(stop_words)) {
+        throw std::invalid_argument("stop word contains unaccaptable symbol"s);
+    }
+    
+    SetStopWords(stop_words);
+}
+
+void SearchServer::SetStopWords(std::string_view text) {
+    for (const std::string_view word : string_processing::SplitIntoWords(text)) {
         if (!IsValidWord(word)) {
             throw std::invalid_argument("Bad stop word");
         }
         
-        stop_words_.insert(word);
+        stop_words_.emplace(word);
     }
 } // SetStopWords
 
@@ -329,12 +337,12 @@ std::vector<Document> SearchServer::FindAllDocuments(const Query& query) const {
     return matched_documents;
 } // FindAllDocuments
 
-bool SearchServer::IsValidWord(const std::string& word) {
-    // A valid word must not contain special characters
-    return none_of(word.begin(), word.end(), [](char c) {
-        return c >= '\0' && c < ' ';
-    });
-} // IsValidWord
+// bool SearchServer::IsValidWord(const std::string& word) {
+//     // A valid word must not contain special characters
+//     return none_of(word.begin(), word.end(), [](char c) {
+//         return c >= '\0' && c < ' ';
+//     });
+// } // IsValidWord
 
 namespace search_server_helpers {
 

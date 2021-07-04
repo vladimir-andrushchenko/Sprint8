@@ -22,9 +22,11 @@ public:
     explicit SearchServer(const StringCollection& stop_words);
     
     explicit SearchServer(const std::string& stop_words);
+
+    explicit SearchServer(const std::string_view stop_words);
     
 public:
-    void SetStopWords(const std::string& text);
+    void SetStopWords(std::string_view text);
     
     bool AddDocument(int document_id, const std::string& document,
                      DocumentStatus status, const std::vector<int>& ratings);
@@ -105,7 +107,12 @@ private:
     
     std::vector<Document> FindAllDocuments(const Query& query) const;
     
-    static bool IsValidWord(const std::string& word);
+    template<typename StringType>
+    static bool IsValidWord(const StringType& word) {
+        return std::none_of(word.begin(), word.end(), [](char c) {
+            return c >= '\0' && c < ' ';
+        });
+    }
     
 private:
     std::set<std::string> stop_words_;
